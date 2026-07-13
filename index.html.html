@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>方案评价智能体 SEAE</title>
+  <style>
+    :root {
+      --bg: #fbfcff;
+      --sidebar: #f5f7fb;
+      --border: #e2e7f0;
+      --text: #24292f;
+      --muted: #7a8496;
+      --card: #ffffff;
+      --shadow: 0 8px 30px rgba(28, 39, 80, 0.05);
+      --primary: #6270ff;
+      --primary2: #9b62ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: var(--sidebar);
+      border-right: 1px solid #e8edf5;
+      padding: 22px 16px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .se-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid #d7deea;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1;
+      box-shadow: 0 3px 10px rgba(28, 39, 80, 0.06);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .new-chat {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 10px 0 18px;
+    }
+
+    details {
+      border-top: 1px solid #e5eaf2;
+      padding: 13px 0;
+    }
+
+    details:last-of-type {
+      border-bottom: 1px solid #e5eaf2;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after {
+      content: "⌄";
+      color: #768197;
+      font-size: 18px;
+      transition: transform .2s ease;
+    }
+
+    details[open] summary::after { transform: rotate(180deg); }
+
+    .field {
+      margin-top: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #657186;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      color: var(--text);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 160px;
+      line-height: 1.6;
+    }
+
+    .small-muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-top: 10px;
+    }
+
+    .side-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .history-item {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .main {
+      margin-left: 300px;
+      width: calc(100% - 300px);
+      min-height: 100vh;
+      padding: 0 30px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      padding-top: 72px;
+      padding-bottom: 24px;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      font-weight: 650;
+      margin-top: 12px;
+    }
+
+    .center {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .input-card {
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      background: var(--card);
+      padding: 18px 20px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .send-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .send-btn {
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 22px 0 24px;
+    }
+
+    .quick-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #7c858f;
+      font-size: 20px;
+      padding: 16px 10px;
+      cursor: pointer;
+      border-radius: 18px;
+      transition: all .2s ease;
+      text-align: left;
+    }
+
+    .quick-card:hover {
+      background: #fff;
+      border-color: var(--border);
+      box-shadow: 0 6px 20px rgba(28, 39, 80, 0.05);
+      color: #3f4652;
+      transform: translateY(-1px);
+    }
+
+    .quick-icon {
+      font-size: 30px;
+      width: 36px;
+      text-align: center;
+      color: #9299a3;
+    }
+
+    .result {
+      margin-top: 18px;
+    }
+
+    .section-title {
+      margin: 24px 0 12px;
+      font-size: 24px;
+      font-weight: 750;
+    }
+
+    .evidence-box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .answer {
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    .notice {
+      margin-top: 12px;
+      color: #8a6474;
+      background: #fff7fb;
+      border: 1px solid #f2d7e5;
+      border-radius: 14px;
+      padding: 12px 14px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+      }
+      .app { display: block; }
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+      .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="se-logo">SEAE</span>
+        <span class="brand-title">方案评价智能体</span>
+      </div>
+
+      <button class="new-chat" onclick="newChat()">＋ 新对话</button>
+
+      <details>
+        <summary>知识库</summary>
+        <div class="field">
+          <label>知识库文件夹</label>
+          <input value="C:\Users\lenovo\Desktop\zhaolinjiao" />
+        </div>
+        <div class="field">
+          <label>向量库保存路径</label>
+          <input value="./chroma_db" />
+        </div>
+        <div class="field">
+          <label><input type="checkbox" style="width:auto; margin-right:6px;" />重建向量库</label>
+        </div>
+        <p class="small-muted">静态 HTML 版本仅展示界面，不能真正读取本地知识库或构建向量库。</p>
+        <button class="side-btn" onclick="showStaticNotice()">加载 / 构建知识库</button>
+      </details>
+
+      <details>
+        <summary>模型</summary>
+        <div class="field">
+          <label>DeepSeek 模型名</label>
+          <input value="deepseek-v4-pro" />
+        </div>
+        <div class="field">
+          <label>TOP_K</label>
+          <input type="number" value="30" min="1" max="200" />
+        </div>
+        <div class="field">
+          <label>相似度阈值</label>
+          <input type="number" value="0.0" step="0.05" min="0" max="1" />
+        </div>
+        <div class="field">
+          <label>向量模型设备</label>
+          <select><option>cpu</option><option>cuda</option></select>
+        </div>
+      </details>
+
+      <details open>
+        <summary>历史对话</summary>
+        <div id="historyBox"><p class="small-muted">暂无历史对话。</p></div>
+        <button class="side-btn" onclick="clearHistory()">清空历史对话</button>
+      </details>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="se-logo">SEAE</span>
+        <div class="hero-title">work with SEAE</div>
+      </section>
+
+      <section class="center">
+        <div class="input-card">
+          <textarea id="queryInput" placeholder="通过填写提示词，设定以下内容：1.定义角色、任务 2.解释评价属性（针对设计方案评价任务） 3.知识来源（如必须基于知识库回答） 4.结构化输出说明"></textarea>
+          <div class="send-row"><button class="send-btn" onclick="sendQuery()">↑ 发送</button></div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="quick-card" onclick="useTemplate('summary')"><span class="quick-icon">▣</span><span>总结评价属性</span></button>
+          <button class="quick-card" onclick="useTemplate('evaluate')"><span class="quick-icon">✎</span><span>评估方案</span></button>
+          <button class="quick-card" onclick="useTemplate('conflict')"><span class="quick-icon">◎</span><span>识别冲突专家</span></button>
+          <button class="quick-card" onclick="useTemplate('feedback')"><span class="quick-icon">↻</span><span>反馈调整</span></button>
+        </div>
+
+        <div class="notice">
+          这是适合 GitHub Pages 展示的静态 HTML 版本。它可以展示界面、快捷按钮和历史记录效果，但不能直接调用 DeepSeek API，也不能读取本地知识库或 Chroma 向量库。
+        </div>
+
+        <div id="result" class="result"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const templates = {
+      summary: `假如你是一位智能产品服务系统设计领域专家，请严格基于知识库资料，围绕智能擦窗机器人产品服务系统设计方案评价，总结可用于方案评价的评价属性。\n\n请按照以下结构输出：\n1. 产品类评价属性\n2. 服务类评价属性\n3. 每个评价属性的定义\n4. 对应知识库依据\n5. 参考来源`,
+      evaluate: `假如你是一位智能产品服务系统设计领域专家，请严格基于知识库资料，对给定设计方案在评价属性下进行评价。\n\n请输出：\n1. 概率语言术语评价矩阵\n2. 每个方案的评价依据\n3. 不确定位置说明\n4. 参考来源`,
+      conflict: `假如你是一位人机协同决策领域专家，请根据输入的人类专家评价矩阵与机器专家评价矩阵，识别冲突度较高的专家及方案-属性位置。\n\n请输出：\n1. 群体冲突度\n2. 局部冲突度\n3. 冲突专家识别结果\n4. 需要反馈调整的位置`,
+      feedback: `假如你是一位强化学习与人机协同决策领域专家，请根据给定的人机评价矩阵、冲突度、偏见值和自尊心约束，设计反馈调整策略。\n\n请输出：\n1. 状态定义\n2. 动作空间\n3. 奖励函数\n4. 调整流程\n5. 结果解释`
+    };
+
+    let history = [];
+
+    function useTemplate(type) {
+      document.getElementById('queryInput').value = templates[type] || '';
+    }
+
+    function nowText() {
+      const d = new Date();
+      return d.toLocaleString('zh-CN', { hour12: false });
+    }
+
+    function sendQuery() {
+      const input = document.getElementById('queryInput');
+      const query = input.value.trim();
+      if (!query) {
+        alert('请输入问题。');
+        return;
+      }
+      const item = { time: nowText(), query };
+      history.push(item);
+      renderHistory();
+      renderResult(item);
+    }
+
+    function renderResult(item) {
+      const html = `
+        <div class="section-title">一、知识库检索依据</div>
+        <div class="evidence-box"><strong>资料1｜相关度：0.9234｜文件：示例资料.pdf，第12页</strong><br>这里展示检索到的知识库片段。静态 HTML 版本不会真正进行向量检索。</div>
+        <div class="evidence-box"><strong>资料2｜相关度：0.8871｜文件：示例产品说明.txt</strong><br>这里展示与用户问题相关的第二条检索依据。</div>
+        <div class="section-title">二、智能体回答</div>
+        <div class="answer">
+          <p>已接收你的问题，并根据静态演示逻辑生成页面效果。</p>
+          <p><strong>你的问题：</strong>${escapeHtml(item.query)}</p>
+          <p>正式部署 Streamlit 或后端服务后，这里可以替换为基于 DeepSeek API 和本地知识库检索结果生成的真实回答。</p>
+        </div>
+      `;
+      document.getElementById('result').innerHTML = html;
+    }
+
+    function renderHistory() {
+      const box = document.getElementById('historyBox');
+      if (!history.length) {
+        box.innerHTML = '<p class="small-muted">暂无历史对话。</p>';
+        return;
+      }
+      box.innerHTML = history.slice(-10).reverse().map((h, i) => `
+        <div class="history-item"><strong>${i + 1}. ${h.time}｜知识库问答</strong><br>${escapeHtml(h.query).slice(0, 120)}</div>
+      `).join('');
+    }
+
+    function clearHistory() {
+      history = [];
+      renderHistory();
+      document.getElementById('result').innerHTML = '';
+    }
+
+    function newChat() {
+      document.getElementById('queryInput').value = '';
+      document.getElementById('result').innerHTML = '';
+    }
+
+    function showStaticNotice() {
+      alert('静态 HTML 版本不能真正加载知识库；真实问答需要部署 Python/Streamlit 后端。');
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>'"]/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[ch]));
+    }
+  </script>
+</body>
+</html>
