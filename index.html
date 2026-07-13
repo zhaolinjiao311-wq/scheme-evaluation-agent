@@ -275,17 +275,6 @@
       font-size: 16px;
     }
 
-    .notice {
-      margin-top: 12px;
-      color: #8a6474;
-      background: #fff7fb;
-      border: 1px solid #f2d7e5;
-      border-radius: 14px;
-      padding: 12px 14px;
-      line-height: 1.6;
-      font-size: 14px;
-    }
-
     @media (max-width: 900px) {
       .sidebar {
         position: static;
@@ -374,10 +363,6 @@
           <button class="quick-card" onclick="useTemplate('evaluate')"><span class="quick-icon">✎</span><span>评估方案</span></button>
           <button class="quick-card" onclick="useTemplate('conflict')"><span class="quick-icon">◎</span><span>识别冲突专家</span></button>
           <button class="quick-card" onclick="useTemplate('feedback')"><span class="quick-icon">↻</span><span>反馈调整</span></button>
-        </div>
-
-        <div class="notice">
-          这是适合 GitHub Pages 展示的静态 HTML 版本。它可以展示界面、快捷按钮和历史记录效果，但不能直接调用 DeepSeek API，也不能读取本地知识库或 Chroma 向量库。
         </div>
 
         <div id="result" class="result"></div>
